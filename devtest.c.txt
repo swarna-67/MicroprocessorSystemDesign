@@ -1,0 +1,73 @@
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
+
+int main() {
+	unsigned int result, read_i, read_j;
+	int fd; //file descriptor
+	int i, j; //loop variables
+	char input = 0;
+
+   //handle error opening file
+	if (fd == -1) {
+		printf("Failed to open the device  file\n");
+		return -1;
+	}
+
+
+
+        char* output = (char*)malloc(3 * sizeof(int)); //for output
+	unsigned int* mul = (unsigned int*)malloc(2 * sizeof(int));  //for input 
+	 
+	int* intBuff;
+
+	fd = open("/dev/multiplier", O_RDWR); //file open 
+	
+	
+	
+	while (input != 'q') { //continue until user decides to quit
+		for (i = 0; i <= 16; i++) {
+			for (j = 0; j <= 16; j++) {
+				
+                                //for write function
+				char* chbuff = (char*)mul; 
+
+
+                                mul[0] = i;
+				mul[1] = j;
+				 
+				
+				write(fd, chbuff, 2 * sizeof(int)); //write to device file
+				read(fd, output, 3 * sizeof(int)); //read to the device file
+				
+				intBuff = (int*)output; //casting 
+				
+                                read_i = intBuff[0];
+				read_j = intBuff[1];
+				result = intBuff[2];
+				
+				/*validate result */
+				printf("%u * %u = %u\n", read_i, read_j, result);
+				if (result == (i * j)) {
+					printf("Result   Correct!\n");
+				}
+				else {
+					printf("Result Incorrect!\n");
+				}
+				//read from terminal
+				input = getchar();
+			}
+		}
+	}
+	close(fd);
+	//free memory
+           
+        free(output);
+        free(mul);
+	
+	
+	return 0;
+}
